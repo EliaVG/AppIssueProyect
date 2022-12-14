@@ -1,0 +1,28 @@
+// Hoja de estilos para AllIssues
+#spinner-component{
+    margin-top: 5rem;
+}
+
+#allIssues{
+    margin-bottom: 2rem;
+    border-top: 1px dotted gray;
+    margin-left: 3rem;
+    margin-right: 3rem;
+}
+
+.search{
+    margin-left: 1rem;
+    
+    #search-component{
+        margin-left: 1rem;
+    }
+
+    #div-table{
+        width: 96vw;
+    }
+}
+
+#actionButton{
+    border: none;
+    background-color: transparent;
+}
