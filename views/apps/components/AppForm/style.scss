@@ -1,127 +1,197 @@
-// Hoja de estilos para AppForm
 @use '../../../../../assets/styles/colors';
 @use '../../../../../assets/styles/typography.scss';
 
 @mixin gridContainer($size, $marginBottom) {
-    display: grid;
-    grid-gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(433px, $size));
-    margin-bottom: $marginBottom;
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(433px, $size));
+  margin-bottom: $marginBottom;
 }
 
-@mixin divStyle(){
-    > div {
-        padding: 0.5rem;
+@mixin divStyle() {
+  > div {
+    padding: 0.5rem;
+    border: 1px solid lightgrey;
+    border-radius: 1rem;
+    box-shadow: 5px 5px 1rem lightgrey;
+  }
+}
+
+#message {
+  color: rgb(207, 36, 36);
+}
+
+#messageSubmit {
+  font-size: 1.5rem;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+#managment-createApp {
+  margin-top: 150px;
+
+  .secTitle {
+    font-size: typography.$font-size-xl;
+    line-height: 32px;
+    margin: 52px 0 12px 52px;
+  }
+
+  #appForm {
+    margin: 1rem 1rem 1rem 2.5rem;
+
+    #date {
+      width: 10rem;
+    }
+
+    #button-component {
+      margin-top: 1rem;
+    }
+
+    #checkbox {
+      display: flex;
+      gap: 5rem;
+      width: 100vw;
+      place-content: center;
+      margin-top: 30px;
+      flex-flow: wrap;
+
+      color: colors.$font-color-light;
+      font-size: typography.$font-size-s;
+    }
+
+    .miniForm button {
+      width: fit-content;
+      height: 2rem;
+      float: right;
+      margin-right: 2rem;
+    }
+
+    #input {
+      @include gridContainer(1fr, 2rem);
+    }
+
+    #select {
+      @include gridContainer(1fr, 1rem);
+    }
+
+    #streamingTechDiv {
+      margin-top: 5rem;
+      @include gridContainer(30rem, 5rem);
+      @include divStyle();
+    }
+
+    #urlDiv {
+      @include gridContainer(30rem, 5rem);
+      @include divStyle();
+    }
+
+    #drmDiv {
+      @include gridContainer(30rem, 5rem);
+      @include divStyle();
+    }
+
+    #buttons {
+      margin: 1rem 2rem 0 auto;
+      display: flex;
+      align-items: flex-end;
+      width: fit-content;
+    }
+
+    .mainDeleteButton {
+      background-color: #ac4136;
+      min-width: 6rem;
+      max-width: 6rem;
+      margin-left: 0.5rem;
+      align-content: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        height: 2vh;
+      }
+
+      &:hover {
+        background-color: #8d3127;
+
+        img {
+          height: 2.2vh;
+        }
+      }
+    }
+
+    .devices{
+      display: flex;
+      flex-flow: wrap;
+      width: 90vw;
+
+      .select__value-container{
+        max-height: 20rem;
+        overflow-y: scroll;
+        align-self: left;
+      }
+
+      .devicesNames{
+        margin-top: 1.5rem;
+        color: #212529;
+        min-width: 50rem;
+        margin-left: 3rem;
+        font-weight: 500;
+        max-height: 20rem;
+        overflow-y: scroll;
+
         border: 1px solid lightgrey;
+        border-radius: 2%;
+        background-color: #fcfdfe;
+
+        :first-child{
+          padding-top: 0.5rem;
+        }
+      }
+    }
+
+    .deletePopUp {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+
+      .container {
+        position: absolute;
+        left: 42%;
+        right: auto;
+        top: 30%;
+        bottom: auto;
+        background: #f2f6fa;
         border-radius: 1rem;
-        box-shadow: 5px 5px 1rem lightgrey; 
-    }
-}
+        padding: 1rem;
+        width: fit-content;
+        text-align: center;
 
-#message{
-    color: rgb(207, 36, 36);
-}
+        .deleteButton {
+          margin-left: 1rem;
+          background-color: #ac4136;
 
-#messageSubmit{
-    font-size: 1.5rem;
-}
-
-#managment-createApp{
-    margin-top: 150px;
-
-    .secTitle {
-        font-size: typography.$font-size-xl;
-        line-height: 32px;
-        margin: 52px 0 12px 52px;
-    }
-
-    #appForm {
-        margin: 1rem 70px 1rem 52px;
-
-        #date{
-            width: 10rem;
-        }
-
-        #button-component {
-            margin-top: 1rem;
-        }
-
-        #checkbox {
-            display: flex;
-            gap: 5rem;
-            width: 100vw;
-            place-content: center;
-            margin-top: 30px;
-            flex-flow: wrap;
-
-            color: colors.$font-color-light;
-            font-size: typography.$font-size-s;
-        }
-
-        .miniForm button{
-            width: fit-content;
+          img {
             height: 2rem;
-            float: right;
-            margin-right: 2rem;
-        }
+          }
 
-        #input{
-            @include gridContainer(1fr, 2rem)
-        }
+          &:hover {
+            background-color: #8d3127;
 
-        #select{
-            @include gridContainer(1fr, 1rem)
-        }
-
-        #streamingTechDiv{
-            @include gridContainer(30rem, 5rem);
-            @include divStyle()
-        }
-
-        #urlDiv{
-            @include gridContainer(30rem, 5rem);
-            @include divStyle()
-        }
-
-        #drmDiv{
-            @include gridContainer(30rem, 5rem);
-            @include divStyle()
-        }
-
-        #buttons{
-            margin-left: 90%;
-            margin-bottom: 1rem;
-        }
-
-        .deletePopUp{
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            margin: auto;
-            background-color: rgba(0,0,0, 0.5);
-
-            .container{
-                position: absolute;
-                left: 42%;
-                right: auto;
-                top: 30%;
-                bottom: auto;
-                background: #f2f6fa;
-                border-radius: 1rem;
-                padding: 1rem;
-                width: fit-content;
-                text-align: center;
-
-                .cancelButton{
-                    margin-left: 1rem;
-                    background-color:#ac4136;
-                }
+            img {
+              height: 2.2rem;
             }
+          }
         }
+      }
     }
+  }
 }
-

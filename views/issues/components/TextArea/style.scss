@@ -1,39 +1,40 @@
 @use '../../../../../assets/styles/colors';
 @use '../../../../../assets/styles/typography';
 
-.textArea{
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    background-color: colors.$primary-color;
-    border-radius: 8px;
-    height: fit-content;
+.textArea {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background-color: colors.$primary-color;
+  border-radius: 8px;
+  height: fit-content;
 
-    label {
-      display:inline-block;
-      min-width:50px;
-      color: colors.$font-color-light;
-      position:relative;
-      font-size: typography.$font-size-s;
+  label {
+    display: inline-block;
+    min-width: 50px;
+    color: colors.$font-color-light;
+    position: relative;
+    font-size: typography.$font-size-s;
+  }
+
+  textarea {
+    background-color: transparent;
+    width: 94%;
+    font-size: typography.$font-size-m;
+    position: relative;
+    top: -23px;
+    padding-top: 30px;
+    color: colors.$font-color-main;
+    border-width: 0px;
+    border: none;
+    margin-left: 0.5rem;
+
+    &:focus {
+      outline: none !important;
     }
+  }
 
-    textarea {
-      background-color: transparent;
-      width: 94%;
-      font-size: typography.$font-size-m;
-      position:relative;
-      top:-23px;
-      padding-top:30px;
-      color: colors.$font-color-main;
-      border-width: 0px;
-      border: none;
-      margin-left: 0.5rem;
-
-        &:focus {
-            outline: none !important;
-      }
-    }
-
-    label, input {
-        margin-left: 8px;
-        margin-right: 8px;
-    }
+  label,
+  input {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
 }

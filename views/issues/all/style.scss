@@ -1,28 +1,53 @@
-// Hoja de estilos para AllIssues
-#spinner-component{
-    margin-top: 5rem;
+#spinner-component {
+  margin-top: 5rem;
 }
 
-#allIssues{
-    margin-bottom: 2rem;
-    border-top: 1px dotted gray;
-    margin-left: 3rem;
-    margin-right: 3rem;
+#allIssues {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-top: 1px dotted gray;
+  margin-left: 3rem;
+  margin-right: 3rem;
 }
 
-.search{
+.search {
+  margin-left: 1rem;
+
+  #search-component {
     margin-left: 1rem;
-    
-    #search-component{
-        margin-left: 1rem;
-    }
+    margin-bottom: 1rem;
+  }
 
-    #div-table{
-        width: 96vw;
+  #div-table {
+    width: 96vw;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    #downloadButtons * {
+      margin-left: 1rem;
+      color: black;
+      background-color: #d9dfed;
+      font-weight: 700;
+
+      :first-child {
+        background-color: transparent;
+        margin-left: 0;
+      }
+
+      &:hover {
+        background-color: #bdc2d0;
+      }
     }
+  }
 }
 
-#actionButton{
-    border: none;
-    background-color: transparent;
+#actionButton {
+  border: none;
+  background-color: transparent;
 }
