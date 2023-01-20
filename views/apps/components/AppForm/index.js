@@ -305,9 +305,12 @@ export default class AppForm extends Component {
         this.setState({ devices: devicesCompleteInfo });
         setDevices(this.state.devices);
 
-        devicesAux.map((device) =>
-          allDevices.push({ value: device.id, label: `${device.appCodeManager} - ${device.portalIds}` })
-        );
+        devicesAux.map((device) => {
+          allDevices.push({
+            value: device.id,
+            label: `${device.portalIds} - ${device.specs.brand} - ${device.specs.chipset}`,
+          });
+        });
 
         this.setState({ allDevices });
         this.setState({ devicesList: this.devicesOptions() });
