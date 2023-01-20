@@ -126,7 +126,7 @@ export default class IssueForm extends Component {
     // eslint-disable-next-line react/destructuring-assignment
     this.props.newIssue(issue);
 
-    window.location.href = `/dashboardpc/management/apps/${getAppId()}`;
+    // window.location.href = `/dashboardpc/management/apps/${getAppId()}`;
     setShowIssueForm();
   };
 
@@ -164,12 +164,12 @@ export default class IssueForm extends Component {
     this.setState({ [field]: value });
 
     if (field == 'categoryAux') {
-      if (value == 'Player') this.setState({ issue_category: '1' });
-      else if (value == 'Navigation') this.setState({ issue_category: '2' });
-      else if (value == 'Requests-Responses') this.setState({ issue_category: '3' });
-      else if (value == 'Back-Button') this.setState({ issue_category: '4' });
-      else if (value == 'Resolution') this.setState({ issue_category: '5' });
-      else this.setState({ issue_category: '6' });
+      if (value == 'Player') this.setState({ issue_category: { id: '1' } });
+      else if (value == 'Navigation') this.setState({ issue_category: { id: '2' } });
+      else if (value == 'Requests-Responses') this.setState({ issue_category: { id: '3' } });
+      else if (value == 'Back-Button') this.setState({ issue_category: { id: '4' } });
+      else if (value == 'Resolution') this.setState({ issue_category: { id: '5' } });
+      else this.setState({ issue_category: { id: '6' } });
     }
   };
 
