@@ -3,6 +3,7 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 import logo from '../../../../../assets/images/Foxxum_LogoPrimaryLight.png';
 import brother from '../../../../../assets/fonts/Brother-1816-Book.ttf';
 import bold from '../../../../../assets/fonts/Brother-1816-Bold.ttf';
+import { getDevices } from '../helpers/variables';
 
 Font.register({ family: 'Brother', src: brother, fontStyle: 'normal', fontWeight: 'normal' });
 Font.register({ family: 'BroBold', src: bold, fontStyle: 'normal', fontWeight: 'normal' });
@@ -69,12 +70,73 @@ const styles = StyleSheet.create({
     color: 'grey',
     width: '95%',
   },
+  table: {
+    width: '100%',
+    borderStyle: 'solid',
+    borderColor: 'black',
+    borderWidth: 0,
+  },
+  headrow: {
+    flexDirection: 'row',
+    backgroundColor: '#ababab',
+    borderWidth: 1,
+  },
+  hCell1: {
+    padding: 5,
+    fontSize: 10,
+    width: '10%',
+  },
+  hCell2: {
+    padding: 5,
+    fontSize: 10,
+    width: '60%',
+  },
+  hCell3: {
+    padding: 5,
+    fontSize: 10,
+    width: '20%',
+    height: 'auto',
+  },
+  hCell4: {
+    padding: 5,
+    fontSize: 10,
+    width: '10%',
+  },
+  trow: {
+    borderStyle: 'solid',
+    borderColor: 'black',
+    borderWidth: 1,
+    flexDirection: 'row',
+    marginTop: -1,
+  },
+  cell1: {
+    padding: '5 0 5 5',
+    fontSize: 10,
+    width: '10%',
+  },
+  cell2: {
+    padding: '5 0 5 5',
+    fontSize: 10,
+    width: '60%',
+  },
+  cell3: {
+    padding: '5 0 5 5',
+    fontSize: 10,
+    width: '20%',
+    height: 'auto',
+  },
+  cell4: {
+    padding: '5 0 5 5',
+    fontSize: 10,
+    width: '10%',
+  },
 });
 
 export default function IssuesReportPDF(props) {
   const { app, issues, date } = props;
   const DocName = `Foxxum_${app.alias}-IssuesReport_${date.year}${date.month}${date.day}.pdf`;
   const { url } = app.appUrls[app.appUrls.length - 1];
+  const devices = getDevices();
 
   return (
     <Document>
@@ -93,6 +155,10 @@ export default function IssuesReportPDF(props) {
           <Text style={styles.itemResult}>{url}</Text>
         </View>
         <View style={styles.section}>
+          <Text style={styles.itemSection}>Additional Information</Text>
+          <Text style={styles.itemResult}>{app.additionalInformation}</Text>
+        </View>
+        <View style={styles.section}>
           <Text style={styles.itemSection}>Number of Issues</Text>
           <Text style={styles.itemResult}>{issues.length}</Text>
         </View>
@@ -100,10 +166,15 @@ export default function IssuesReportPDF(props) {
         <Text>{`\n`}</Text>
 
         <Text style={styles.subtitle}>Issues</Text>
-        {issues.map((issue) => {
+        {issues.map((issue, index) => {
           return (
             <View style={styles.line}>
               <Text>{`\n`}</Text>
+              <View style={styles.section}>
+                <Text style={styles.itemSection}>ID</Text>
+                <Text style={styles.itemResult}>{index}</Text>
+              </View>
+
               <View style={styles.section}>
                 <Text style={styles.itemSection}>Name</Text>
                 <Text style={styles.itemResult}>{issue.name}</Text>
@@ -162,7 +233,7 @@ export default function IssuesReportPDF(props) {
 
               <Text style={styles.itemSection}>Devices</Text>
               {issue.devices.map((device) => {
-                return <Text style={styles.itemResult}>- {`${device.deviceName}`}</Text>;
+                return <Text style={styles.itemResult}>- {`${device.deviceNameShort}`}</Text>;
               })}
 
               <View style={styles.section}>
@@ -179,10 +250,29 @@ export default function IssuesReportPDF(props) {
           );
         })}
 
-        <Text style={styles.subtitle}>Tested Devices</Text>
-        {app.devicesInfo.map((device) => {
-          return <Text style={styles.itemResult}>{device.device.deviceName}</Text>;
-        })}
+        <Text style={styles.subtitle}>Summary</Text>
+        <View style={styles.table}>
+          <View style={styles.headrow}>
+            <Text style={styles.hCell1}>Code</Text>
+            <Text style={styles.hCell2}>Device</Text>
+            <Text style={styles.hCell3}>Issues</Text>
+            <Text style={styles.hCell4}>Status</Text>
+          </View>
+          {devices
+            ? // eslint-disable-next-line array-callback-return
+              devices.map((device, index) => {
+                return (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <View key={index} style={styles.trow} wrap={false}>
+                    <Text style={styles.cell1}>{device.code}</Text>
+                    <Text style={styles.cell2}>{device.name}</Text>
+                    <Text style={styles.cell3}>{device.issueIds.join(', ')}</Text>
+                    <Text style={styles.cell4}>{device.status}</Text>
+                  </View>
+                );
+              })
+            : ''}
+        </View>
 
         <View style={styles.footer} fixed>
           <View>

@@ -3,13 +3,16 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react';
+import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
 import Navbar from '../../../../../components/Navbar';
 import Input from '../../../../../components/Input';
 import Button from '../../../../../components/Button';
 import Checkbox from '../../../../../components/Checkbox';
 import Select from '../../../../../components/Select';
 import MultiSelect from '../MultiSelect';
-import Date from '../Date';
+import DateInput from '../DateInput';
+import DevicesUserAgentPDF from '../DevicesUserAgentPDF';
 import AppService from '../../../../../services/app.service';
 import { brands, getAppInfo, getAppId, setDevices } from '../helpers/variables';
 import './style.scss';
@@ -87,6 +90,7 @@ export default class AppForm extends Component {
       allDevices: this.getDevicesInfo(),
       devicesReady: false,
       showDevices: true,
+      successMessage: false,
     };
   }
 
@@ -122,11 +126,11 @@ export default class AppForm extends Component {
         appUrls: this.state.app.appUrls,
         drm: this.state.app.drm,
         streamingTech: this.state.app.streamingTech,
-        devicesInfo: this.state.app.devicesInfo,
         isTestApp: this.state.app.isTestApp,
         appManagerId: this.state.app.appManagerId,
       });
       this.formatState();
+      document.getElementById('inputFields').setAttribute('style', 'pointer-events: none');
     }
   }
 
@@ -217,7 +221,8 @@ export default class AppForm extends Component {
     else
       AppService.updateApp(getAppId(), app)
         .then(() => {
-          window.location.href = `/dashboardpc/management/apps`;
+          this.setState({ successMessage: true });
+          setTimeout(() => this.setState({ successMessage: false }), 1000);
         })
         .catch((error) => {
           console.error(error);
@@ -622,7 +627,7 @@ export default class AppForm extends Component {
           name = 'Redmine Task';
           break;
         case 'appManagerId':
-          name = 'App Manager Id';
+          name = 'App Manager Id *';
           break;
         case 'foxxumPic':
           name = 'Foxxum PIC';
@@ -711,6 +716,26 @@ export default class AppForm extends Component {
     });
   };
 
+  formEditable() {
+    document.getElementById('inputFields').setAttribute('style', 'pointer-events: true');
+    const popUp = document.createElement('div');
+    popUp.className = 'successPopUp';
+
+    const container = document.createElement('div');
+    container.className = 'container';
+
+    const message = document.createElement('p');
+
+    message.innerHTML = 'Now you can edit';
+
+    popUp.appendChild(container).appendChild(message);
+
+    document.getElementById('inputFields').appendChild(popUp);
+    setTimeout(() => document.getElementById('inputFields').removeChild(popUp), 1000);
+
+    this.setState({ formEditable: true });
+  }
+
   // Método que ejecutamos al renderizar la app
   render() {
     // Declaramos variables que vamos a usar
@@ -762,465 +787,495 @@ export default class AppForm extends Component {
         <Navbar title="NEW APP" isAdmin="yes" />
         <div className="secTitle">{this.isNewApp() ? 'New App' : 'Edit App'}</div>
         <form onSubmit={this.onSubmit} id="appForm">
-          <div id="appProperties">
-            <div id="input">
-              {this.renderInputs(arrayInputs)}
+          <div id="inputFields">
+            <div id="appProperties">
+              <div id="input">
+                {this.renderInputs(arrayInputs)}
 
-              <div id="CPPic">
-                <h6>CPPic</h6>
-                <div>
-                  <Input
-                    title="Name"
-                    valueInput={this.isNewApp() ? CPPic.name : this.state.app.CPPic.name}
-                    inputStyle="2"
-                    onInputTextChange={(value) => {
-                      this.setState({ CPPic: { ...this.state.CPPic, name: value } });
-                    }}
-                  />
-                  <Input
-                    title="Email"
-                    valueInput={this.isNewApp() ? CPPic.email : this.state.app.CPPic.email}
-                    inputStyle="2"
-                    onInputTextChange={(value) => {
-                      this.setState({ CPPic: { ...this.state.CPPic, email: value } });
-                    }}
-                  />
+                <div id="CPPic">
+                  <h6>CPPic</h6>
+                  <div>
+                    <Input
+                      title="Name"
+                      valueInput={this.isNewApp() ? CPPic.name : this.state.app.CPPic.name}
+                      inputStyle="2"
+                      onInputTextChange={(value) => {
+                        this.setState({ CPPic: { ...this.state.CPPic, name: value } });
+                      }}
+                    />
+                    <Input
+                      title="Email"
+                      valueInput={this.isNewApp() ? CPPic.email : this.state.app.CPPic.email}
+                      inputStyle="2"
+                      onInputTextChange={(value) => {
+                        this.setState({ CPPic: { ...this.state.CPPic, email: value } });
+                      }}
+                    />
+                  </div>
+                </div>
+                <div id="appDescription">
+                  <h6>App Description</h6>
+                  <div>
+                    <Input
+                      title="Short Description"
+                      valueInput={this.isNewApp() ? appDescription.short : this.state.app.appDescription.short}
+                      inputStyle="2"
+                      onInputTextChange={(value) => {
+                        this.setState({ appDescription: { ...this.state.appDescription, short: value } });
+                      }}
+                    />
+                    <Input
+                      title="Medium Description"
+                      valueInput={this.isNewApp() ? appDescription.mid : this.state.app.appDescription.mid}
+                      inputStyle="2"
+                      onInputTextChange={(value) => {
+                        this.setState({ appDescription: { ...this.state.appDescription, mid: value } });
+                      }}
+                    />
+                    <Input
+                      title="Long Description"
+                      valueInput={this.isNewApp() ? appDescription.long : this.state.app.appDescription.long}
+                      inputStyle="2"
+                      onInputTextChange={(value) => {
+                        this.setState({ appDescription: { ...this.state.appDescription, long: value } });
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-              <div id="appDescription">
-                <h6>App Description</h6>
-                <div>
-                  <Input
-                    title="Short Description"
-                    valueInput={this.isNewApp() ? appDescription.short : this.state.app.appDescription.short}
-                    inputStyle="2"
-                    onInputTextChange={(value) => {
-                      this.setState({ appDescription: { ...this.state.appDescription, short: value } });
-                    }}
-                  />
-                  <Input
-                    title="Medium Description"
-                    valueInput={this.isNewApp() ? appDescription.mid : this.state.app.appDescription.mid}
-                    inputStyle="2"
-                    onInputTextChange={(value) => {
-                      this.setState({ appDescription: { ...this.state.appDescription, mid: value } });
-                    }}
-                  />
-                  <Input
-                    title="Long Description"
-                    valueInput={this.isNewApp() ? appDescription.long : this.state.app.appDescription.long}
-                    inputStyle="2"
-                    onInputTextChange={(value) => {
-                      this.setState({ appDescription: { ...this.state.appDescription, long: value } });
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div id="select">
-              <Select
-                label="Tech Standard:"
-                option={techStandard}
-                optionsList={['CEhtml', 'hbbTV', 'html5']}
-                onChangeOption={(e) => {
-                  this.onChangeInput(e, 'techStandard');
-                }}
-              />
-
-              {this.renderMultiSelects(arrayMultiSelects)}
-
-              <MultiSelect
-                label="Relevant Platforms:"
-                option={
-                  this.isNewApp() || this.state.app.relevantPlatforms == undefined
-                    ? relevantPlatforms
-                    : this.multiSelectOptionNoRelational(this.state.app.relevantPlatforms)
-                }
-                optionsList={brands}
-                onChangeOption={(e) => {
-                  this.onChangeMultiSelect(e, 'relevantPlatforms');
-                }}
-              />
-              <div id="geoBlocking">
-                <h6>GeoBlocking</h6>
-                <div>
-                  <MultiSelect
-                    label="Allowed Countries:"
-                    option={
-                      this.isNewApp() || this.state.app.geoBlocking.allowedCountries == undefined
-                        ? geoBlocking.allowedCountries
-                        : this.multiSelectOptionNoRelational(this.state.app.geoBlocking.allowedCountries)
-                    }
-                    optionsList={this.state.countriesList}
-                    onChangeOption={(value) => {
-                      this.setState({
-                        geoBlocking: { ...this.state.geoBlocking, allowedCountries: value.map((item) => item.value) },
-                      });
-                    }}
-                  />
-                  <MultiSelect
-                    label="Blocked Countries:"
-                    option={
-                      this.isNewApp() || this.state.app.geoBlocking.deniedCountries == undefined
-                        ? geoBlocking.deniedCountries
-                        : this.multiSelectOptionNoRelational(this.state.app.geoBlocking.deniedCountries)
-                    }
-                    optionsList={this.state.countriesList}
-                    onChangeOption={(value) => {
-                      this.setState({
-                        geoBlocking: { ...this.state.geoBlocking, deniedCountries: value.map((item) => item.value) },
-                      });
-                    }}
-                  />
-                </div>
-              </div>
-
-              {this.state.devicesReady && (
-                <div className="devices">
-                  <MultiSelect
-                    id="selectDevices"
-                    label="Devices:"
-                    option={devicesList}
-                    optionsList={allDevices}
-                    onChangeOption={(e) => {
-                      const listAux = [];
-                      devicesAux.forEach((dev) => {
-                        e.forEach((item) => {
-                          if (dev.id === item.value) {
-                            const device = { id: dev.id };
-                            listAux.push({ deviceId: dev.fxmId, device });
-                          }
-                        });
-                      });
-                      setDevices(listAux);
-                      this.setState({ devicesInfo: listAux });
-                      this.setState({ showDevices: false });
-                    }}
-                  />
-                  {!this.isNewApp() && this.state.showDevices && (
-                    <div className="devicesNames">
-                      {this.state.devicesInfo.map((device) => {
-                        const { deviceName } = device.device;
-                        if (deviceName != undefined) return <p>-&gt; {deviceName}</p>;
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <div id="streamingTechDiv">
-              <div className="miniForm" id="streamingTech">
-                <h6>Streaming Tech</h6>
+              <div id="select">
                 <Select
-                  label="Name:"
-                  option={streamingTechAux.name}
-                  optionsList={['HLS', 'DASH', 'MSS']}
+                  label="Tech Standard:"
+                  option={techStandard}
+                  optionsList={['CEhtml', 'hbbTV', 'html5']}
                   onChangeOption={(e) => {
-                    this.setState({ streamingTechAux: { ...streamingTechAux, name: e } });
+                    this.onChangeInput(e, 'techStandard');
                   }}
                 />
-                <Input
-                  title="Version"
-                  valueInput={streamingTechAux.version}
-                  inputStyle="2"
-                  onInputTextChange={(value) => {
-                    this.setState({ streamingTechAux: { ...streamingTechAux, version: value } });
-                  }}
-                />
-                <Button
-                  name="Add Streaming Tech"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    this.addStreamingTech();
-                    this.addMessage('streamingTech', 'add');
-                    this.clearFields('streamingTech');
-                  }}
-                />
-              </div>
-              {this.state.streamingTech.length != 0
-                ? this.state.streamingTech.map((item, index) => (
-                    <div className="miniForm" id={`streamingTech${index}`} key={`streamingTech${index}`}>
-                      <h6>Streaming Tech</h6>
-                      <Select
-                        label="Name:"
-                        option={item.name}
-                        optionsList={['HLS', 'DASH', 'MSS']}
-                        onChangeOption={(e) => {
-                          const { streamingTech } = this.state;
-                          streamingTech[index].name = e;
-                          this.setState({ streamingTech });
-                        }}
-                      />
-                      <Input
-                        title="Version"
-                        value={item.version}
-                        inputStyle="2"
-                        onInputTextChange={(value) => {
-                          const { streamingTech } = this.state;
-                          streamingTech[index].version = value;
-                          this.setState({ streamingTech });
-                        }}
-                      />
-                      <Button
-                        name="Remove Streaming Tech"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          this.removeStreamingTech(index);
-                        }}
-                      />
-                    </div>
-                  ))
-                : null}
-            </div>
-            <div id="urlDiv">
-              <div className="miniForm" id="url">
-                <h6>URL</h6>
-                <Input
-                  title="URL"
-                  valueInput={urlObject.url}
-                  inputStyle="2"
-                  onInputTextChange={(value) => {
-                    this.setState({ urlObject: { ...urlObject, url: value } });
-                  }}
-                />
-                <Date
-                  id="date"
+
+                {this.renderMultiSelects(arrayMultiSelects)}
+
+                <MultiSelect
+                  label="Relevant Platforms:"
+                  option={
+                    this.isNewApp() || this.state.app.relevantPlatforms == undefined
+                      ? relevantPlatforms
+                      : this.multiSelectOptionNoRelational(this.state.app.relevantPlatforms)
+                  }
+                  optionsList={brands}
                   onChangeOption={(e) => {
-                    this.onChangeDate(e);
+                    this.onChangeMultiSelect(e, 'relevantPlatforms');
                   }}
                 />
-                <Input
-                  title="Version"
-                  valueInput={urlObject.version}
-                  inputStyle="2"
-                  onInputTextChange={(value) => {
-                    this.setState({ urlObject: { ...urlObject, version: value } });
-                  }}
-                />
-                <Button
-                  name="Add URL"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    this.addUrl();
-                    this.addMessage('url', 'add');
-                    this.clearFields('url');
-                  }}
-                />
-              </div>
-              {this.state.appUrls.length != 0
-                ? this.state.appUrls.map((item, index) => (
-                    <div className="miniForm" id={`url${index}`} key={`url${index}`}>
-                      <h6>URL</h6>
-                      <Input
-                        title="URL"
-                        value={item.url}
-                        inputStyle="2"
-                        onInputTextChange={(value) => {
-                          const { appUrls } = this.state;
-                          appUrls[index].url = value;
-                          this.setState({ appUrls });
-                        }}
-                      />
-                      <Date
-                        id="date"
-                        defaultValue={item.date}
-                        onChangeOption={(e) => {
-                          const { appUrls } = this.state;
-                          appUrls[index].date = e.target.value;
-                          this.setState({ appUrls });
-                        }}
-                      />
-                      <Input
-                        title="Version"
-                        value={item.version}
-                        inputStyle="2"
-                        onInputTextChange={(value) => {
-                          const { appUrls } = this.state;
-                          appUrls[index].version = value;
-                          this.setState({ appUrls });
-                        }}
-                      />
-                      <Button
-                        name="Remove URL"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          this.removeUrl(index);
-                        }}
-                      />
-                    </div>
-                  ))
-                : null}
-            </div>
-            <div id="drmDiv">
-              <div className="miniForm" id="drm">
-                <h6>DRM</h6>
-                <Select
-                  label="Type:"
-                  option={drmObject.drmType}
-                  optionsList={['PlayReady', 'WideVine', 'FairPlay']}
-                  onChangeOption={(e) => {
-                    this.setState(
-                      { drmObject: { ...drmObject, drmType: e, securityLevel: this.drmSecurityLevel()[0] } },
-                      () => {
-                        this.changeSecurityLevel();
+                <div id="geoBlocking">
+                  <h6>GeoBlocking</h6>
+                  <div>
+                    <MultiSelect
+                      label="Allowed Countries:"
+                      option={
+                        this.isNewApp() || this.state.app.geoBlocking.allowedCountries == undefined
+                          ? geoBlocking.allowedCountries
+                          : this.multiSelectOptionNoRelational(this.state.app.geoBlocking.allowedCountries)
                       }
-                    );
-                  }}
-                />
-                <Select
-                  label="Player Used:"
-                  option={drmObject.playerUsed}
-                  optionsList={['HTML5', 'Shaka', 'DASHjs', 'HLS.js', 'Videojs', 'CE-HTML']}
-                  onChangeOption={(e) => {
-                    this.setState({ drmObject: { ...drmObject, playerUsed: e } });
-                  }}
-                />
-                <Select
-                  label="Security Level:"
-                  option={drmObject.securityLevel}
-                  optionsList={this.drmSecurityLevel()}
-                  onChangeOption={(e) => {
-                    this.setState({ drmObject: { ...drmObject, securityLevel: e } });
-                  }}
-                />
-                <Input
-                  title="Content With DRM"
-                  value={drmObject.contentWithDrm}
-                  inputStyle="2"
-                  onInputTextChange={(value) => {
-                    this.setState({ drmObject: { ...drmObject, contentWithDrm: value } });
-                  }}
-                />
-                <Button
-                  name="Add DRM"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    this.addDrm();
-                    this.addMessage('drm', 'add');
-                    this.clearFields('drm');
-                  }}
-                />
-              </div>
-              {this.state.drm.length != 0
-                ? this.state.drm.map((item, index) => (
-                    <div className="miniForm" id={`drm${index}`} key={`drm${index}`}>
-                      <h6>DRM</h6>
-                      <Select
-                        label="Type:"
-                        option={item.drmType}
-                        optionsList={['PlayReady', 'WideVine', 'FairPlay']}
-                        onChangeOption={(value) => {
-                          const { drm } = this.state;
-                          drm[index].drmType = value;
-                          this.setState({ drm }, () => {
-                            this.changeSecurityLevelItem(index);
+                      optionsList={this.state.countriesList}
+                      onChangeOption={(value) => {
+                        this.setState({
+                          geoBlocking: { ...this.state.geoBlocking, allowedCountries: value.map((item) => item.value) },
+                        });
+                      }}
+                    />
+                    <MultiSelect
+                      label="Blocked Countries:"
+                      option={
+                        this.isNewApp() || this.state.app.geoBlocking.deniedCountries == undefined
+                          ? geoBlocking.deniedCountries
+                          : this.multiSelectOptionNoRelational(this.state.app.geoBlocking.deniedCountries)
+                      }
+                      optionsList={this.state.countriesList}
+                      onChangeOption={(value) => {
+                        this.setState({
+                          geoBlocking: { ...this.state.geoBlocking, deniedCountries: value.map((item) => item.value) },
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {this.state.devicesReady && (
+                  <div className="devices">
+                    <MultiSelect
+                      id="selectDevices"
+                      label="Devices:"
+                      option={devicesList}
+                      optionsList={allDevices}
+                      onChangeOption={(e) => {
+                        const listAux = [];
+                        devicesAux.forEach((dev) => {
+                          e.forEach((item) => {
+                            if (dev.id === item.value) {
+                              const device = { id: dev.id };
+                              listAux.push({ deviceId: dev.fxmId, device, statusAppDevice: 'Testing' });
+                            }
                           });
-                        }}
-                      />
-                      <Select
-                        label="Player Used:"
-                        option={item.playerUsed}
-                        optionsList={['HTML5', 'Shaka', 'DASHjs', 'HLS.js', 'Videojs', 'CE-HTML']}
-                        onChangeOption={(value) => {
-                          const { drm } = this.state;
-                          drm[index].playerUsed = value;
-                          this.setState({ drm });
-                        }}
-                      />
-                      <Select
-                        label="Security Level:"
-                        option={item.securityLevel}
-                        optionsList={this.drmSecurityLevelItem(index)}
-                        onChangeOption={(value) => {
-                          const { drm } = this.state;
-                          drm[index].securityLevel = value;
-                          this.setState({ drm });
-                        }}
-                      />
-                      <Input
-                        title="Content With DRM"
-                        value={item.contentWithDrm}
-                        inputStyle="2"
-                        onInputTextChange={(value) => {
-                          const { drm } = this.state;
-                          drm[index].contentWithDrm = value;
-                          this.setState({ drm });
-                        }}
-                      />
-                      <Button
-                        name="Remove DRM"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          this.removeDrm(index);
-                        }}
-                      />
-                    </div>
-                  ))
-                : null}
+                        });
+                        setDevices(listAux);
+                        this.setState({ devicesInfo: listAux });
+                        this.setState({ showDevices: false });
+                      }}
+                    />
+                    <Button
+                      name="Download User Agent"
+                      className="userAgentButton"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        const myDate = new Date();
+                        const day = myDate.getDate() < 10 ? `0${myDate.getDate()}` : myDate.getDate();
+                        const month = myDate.getMonth() + 1 < 10 ? `0${myDate.getMonth() + 1}` : myDate.getMonth() + 1;
+                        const year = myDate.getFullYear().toString().substring(2);
+                        const dateAux = { day, month, year };
+                        const DocName = `Foxxum_${this.state.app.name}-UserAgents_${dateAux}`;
+                        const doc = (
+                          <DevicesUserAgentPDF
+                            devices={this.state.devices}
+                            date={dateAux}
+                            appName={this.state.app.name}
+                          />
+                        );
+                        const asPdf = pdf([]);
+                        asPdf.updateContainer(doc);
+                        const blob = await asPdf.toBlob();
+                        saveAs(blob, DocName);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div id="streamingTechDiv">
+                <div className="miniForm" id="streamingTech">
+                  <h6>Streaming Tech</h6>
+                  <Select
+                    label="Name:"
+                    option={streamingTechAux.name}
+                    optionsList={['HLS', 'DASH', 'MSS']}
+                    onChangeOption={(e) => {
+                      this.setState({ streamingTechAux: { ...streamingTechAux, name: e } });
+                    }}
+                  />
+                  <Input
+                    title="Version"
+                    valueInput={streamingTechAux.version}
+                    inputStyle="2"
+                    onInputTextChange={(value) => {
+                      this.setState({ streamingTechAux: { ...streamingTechAux, version: value } });
+                    }}
+                  />
+                  <Button
+                    name="Add Streaming Tech"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      this.addStreamingTech();
+                      this.addMessage('streamingTech', 'add');
+                      this.clearFields('streamingTech');
+                    }}
+                  />
+                </div>
+                {this.state.streamingTech.length != 0
+                  ? this.state.streamingTech.map((item, index) => (
+                      <div className="miniForm" id={`streamingTech${index}`} key={`streamingTech${index}`}>
+                        <h6>Streaming Tech</h6>
+                        <Select
+                          label="Name:"
+                          option={item.name}
+                          optionsList={['HLS', 'DASH', 'MSS']}
+                          onChangeOption={(e) => {
+                            const { streamingTech } = this.state;
+                            streamingTech[index].name = e;
+                            this.setState({ streamingTech });
+                          }}
+                        />
+                        <Input
+                          title="Version"
+                          value={item.version}
+                          inputStyle="2"
+                          onInputTextChange={(value) => {
+                            const { streamingTech } = this.state;
+                            streamingTech[index].version = value;
+                            this.setState({ streamingTech });
+                          }}
+                        />
+                        <Button
+                          name="Remove Streaming Tech"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            this.removeStreamingTech(index);
+                          }}
+                        />
+                      </div>
+                    ))
+                  : null}
+              </div>
+              <div id="urlDiv">
+                <div className="miniForm" id="url">
+                  <h6>URL *</h6>
+                  <Input
+                    title="URL"
+                    valueInput={urlObject.url}
+                    inputStyle="2"
+                    onInputTextChange={(value) => {
+                      this.setState({ urlObject: { ...urlObject, url: value } });
+                    }}
+                  />
+                  <DateInput
+                    id="date"
+                    onChangeOption={(e) => {
+                      this.onChangeDate(e);
+                    }}
+                  />
+                  <Input
+                    title="Version"
+                    valueInput={urlObject.version}
+                    inputStyle="2"
+                    onInputTextChange={(value) => {
+                      this.setState({ urlObject: { ...urlObject, version: value } });
+                    }}
+                  />
+                  <Button
+                    name="Add URL"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      this.addUrl();
+                      this.addMessage('url', 'add');
+                      this.clearFields('url');
+                    }}
+                  />
+                </div>
+                {this.state.appUrls.length != 0
+                  ? this.state.appUrls.map((item, index) => (
+                      <div className="miniForm" id={`url${index}`} key={`url${index}`}>
+                        <h6>URL</h6>
+                        <Input
+                          title="URL"
+                          value={item.url}
+                          inputStyle="2"
+                          onInputTextChange={(value) => {
+                            const { appUrls } = this.state;
+                            appUrls[index].url = value;
+                            this.setState({ appUrls });
+                          }}
+                        />
+                        <DateInput
+                          id="date"
+                          defaultValue={item.date}
+                          onChangeOption={(e) => {
+                            const { appUrls } = this.state;
+                            appUrls[index].date = e.target.value;
+                            this.setState({ appUrls });
+                          }}
+                        />
+                        <Input
+                          title="Version"
+                          value={item.version}
+                          inputStyle="2"
+                          onInputTextChange={(value) => {
+                            const { appUrls } = this.state;
+                            appUrls[index].version = value;
+                            this.setState({ appUrls });
+                          }}
+                        />
+                        <Button
+                          name="Remove URL"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            this.removeUrl(index);
+                          }}
+                        />
+                      </div>
+                    ))
+                  : null}
+              </div>
+              <div id="drmDiv">
+                <div className="miniForm" id="drm">
+                  <h6>DRM</h6>
+                  <Select
+                    label="Type:"
+                    option={drmObject.drmType}
+                    optionsList={['PlayReady', 'WideVine', 'FairPlay']}
+                    onChangeOption={(e) => {
+                      this.setState(
+                        { drmObject: { ...drmObject, drmType: e, securityLevel: this.drmSecurityLevel()[0] } },
+                        () => {
+                          this.changeSecurityLevel();
+                        }
+                      );
+                    }}
+                  />
+                  <Select
+                    label="Player Used:"
+                    option={drmObject.playerUsed}
+                    optionsList={['HTML5', 'Shaka', 'DASHjs', 'HLS.js', 'Videojs', 'CE-HTML']}
+                    onChangeOption={(e) => {
+                      this.setState({ drmObject: { ...drmObject, playerUsed: e } });
+                    }}
+                  />
+                  <Select
+                    label="Security Level:"
+                    option={drmObject.securityLevel}
+                    optionsList={this.drmSecurityLevel()}
+                    onChangeOption={(e) => {
+                      this.setState({ drmObject: { ...drmObject, securityLevel: e } });
+                    }}
+                  />
+                  <Input
+                    title="Content With DRM"
+                    value={drmObject.contentWithDrm}
+                    inputStyle="2"
+                    onInputTextChange={(value) => {
+                      this.setState({ drmObject: { ...drmObject, contentWithDrm: value } });
+                    }}
+                  />
+                  <Button
+                    name="Add DRM"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      this.addDrm();
+                      this.addMessage('drm', 'add');
+                      this.clearFields('drm');
+                    }}
+                  />
+                </div>
+                {this.state.drm.length != 0
+                  ? this.state.drm.map((item, index) => (
+                      <div className="miniForm" id={`drm${index}`} key={`drm${index}`}>
+                        <h6>DRM</h6>
+                        <Select
+                          label="Type:"
+                          option={item.drmType}
+                          optionsList={['PlayReady', 'WideVine', 'FairPlay']}
+                          onChangeOption={(value) => {
+                            const { drm } = this.state;
+                            drm[index].drmType = value;
+                            this.setState({ drm }, () => {
+                              this.changeSecurityLevelItem(index);
+                            });
+                          }}
+                        />
+                        <Select
+                          label="Player Used:"
+                          option={item.playerUsed}
+                          optionsList={['HTML5', 'Shaka', 'DASHjs', 'HLS.js', 'Videojs', 'CE-HTML']}
+                          onChangeOption={(value) => {
+                            const { drm } = this.state;
+                            drm[index].playerUsed = value;
+                            this.setState({ drm });
+                          }}
+                        />
+                        <Select
+                          label="Security Level:"
+                          option={item.securityLevel}
+                          optionsList={this.drmSecurityLevelItem(index)}
+                          onChangeOption={(value) => {
+                            const { drm } = this.state;
+                            drm[index].securityLevel = value;
+                            this.setState({ drm });
+                          }}
+                        />
+                        <Input
+                          title="Content With DRM"
+                          value={item.contentWithDrm}
+                          inputStyle="2"
+                          onInputTextChange={(value) => {
+                            const { drm } = this.state;
+                            drm[index].contentWithDrm = value;
+                            this.setState({ drm });
+                          }}
+                        />
+                        <Button
+                          name="Remove DRM"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            this.removeDrm(index);
+                          }}
+                        />
+                      </div>
+                    ))
+                  : null}
+              </div>
             </div>
-          </div>
-          <div id="checkbox">
-            <div>
-              <Checkbox
-                name="credentials"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? credentials : this.state.credentials}
-              />{' '}
-              Credentials
-            </div>
-            <div>
-              <Checkbox
-                name="adsIntegration"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? adsIntegration : this.state.adsIntegration}
-              />{' '}
-              Ads Integration
-            </div>
-            <div>
-              <Checkbox
-                name="ipFilter"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? ipFilter : this.state.ipFilter}
-              />{' '}
-              IP Filter
-            </div>
-            <div>
-              <Checkbox
-                name="userAgentFilter"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? userAgentFilter : this.state.userAgentFilter}
-              />{' '}
-              User Agent Filter
-            </div>
-            <div>
-              <Checkbox
-                name="contractSigned"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? contractSigned : this.state.contractSigned}
-              />{' '}
-              Contract Signed
-            </div>
-            <div>
-              <Checkbox
-                name="cpApproval"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? cpApproval : this.state.cpApproval}
-              />{' '}
-              CP Approval
-            </div>
-            <div>
-              <Checkbox
-                name="isTestApp"
-                liftState={this.onLiftState}
-                isChecked={this.isNewApp() ? isTestApp : this.state.isTestApp}
-              />{' '}
-              Is Test App
+            <div id="checkbox">
+              <div>
+                <Checkbox
+                  name="credentials"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? credentials : this.state.credentials}
+                />{' '}
+                Credentials
+              </div>
+              <div>
+                <Checkbox
+                  name="adsIntegration"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? adsIntegration : this.state.adsIntegration}
+                />{' '}
+                Ads Integration
+              </div>
+              <div>
+                <Checkbox
+                  name="ipFilter"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? ipFilter : this.state.ipFilter}
+                />{' '}
+                IP Filter
+              </div>
+              <div>
+                <Checkbox
+                  name="userAgentFilter"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? userAgentFilter : this.state.userAgentFilter}
+                />{' '}
+                User Agent Filter
+              </div>
+              <div>
+                <Checkbox
+                  name="contractSigned"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? contractSigned : this.state.contractSigned}
+                />{' '}
+                Contract Signed
+              </div>
+              <div>
+                <Checkbox
+                  name="cpApproval"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? cpApproval : this.state.cpApproval}
+                />{' '}
+                CP Approval
+              </div>
+              <div>
+                <Checkbox
+                  name="isTestApp"
+                  liftState={this.onLiftState}
+                  isChecked={this.isNewApp() ? isTestApp : this.state.isTestApp}
+                />{' '}
+                Is Test App
+              </div>
             </div>
           </div>
           <div id="buttons">
-            <Button name={this.isNewApp() ? 'Create New App' : 'Save App'} type="submit" className="submitButton">
-              <input type="submit" />
-            </Button>
+            {!this.isNewApp() && !this.state.formEditable && (
+              <Button
+                name="Edit App"
+                className="editButton"
+                onClick={(e) => {
+                  e.preventDefault();
+                  this.formEditable();
+                }}
+              />
+            )}
+            {(this.state.formEditable || this.isNewApp()) && (
+              <Button name={this.isNewApp() ? 'Create New App' : 'Save App'} type="submit" className="submitButton">
+                <input type="submit" />
+              </Button>
+            )}
             {!this.isNewApp() ? (
               <Button
                 onClick={(e) => {
@@ -1252,6 +1307,13 @@ export default class AppForm extends Component {
                       className="deleteButton"
                     />
                   </div>
+                </div>
+              </div>
+            ) : null}
+            {this.state.successMessage ? (
+              <div className="successPopUp">
+                <div className="container">
+                  <p>App Saved Successfully!</p>
                 </div>
               </div>
             ) : null}

@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 // eslint-disable-next-line import/no-mutable-exports
 let appInfo = {};
 let appId = '';

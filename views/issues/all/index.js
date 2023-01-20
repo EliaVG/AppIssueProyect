@@ -11,10 +11,17 @@ import SearchInput from '../../../../components/SearchInput';
 import Table from '../../../../components/Table';
 import Checkbox from '../../../../components/Checkbox';
 import IssueForm from '../components/IssueForm';
-import { getShowIssueForm, setShowIssueForm, setIssue } from '../components/helpers/variables';
+import {
+  getShowIssueForm,
+  setShowIssueForm,
+  setIssue,
+  setShowDevicesTable,
+  setDevices,
+} from '../components/helpers/variables';
 import IssuesReportPDF from '../components/IssuesReportPDF';
+import DevicesTable from '../components/DevicesTable';
 
-const AVAILABLE_PROPERTIES = ['name', 'category', 'severity', 'testedBy', 'isSolved'];
+const AVAILABLE_PROPERTIES = ['issueId', 'name', 'category', 'severity', 'testedBy', 'isSolved', 'devicesNameShort'];
 
 export default class AllIssues extends Component {
   constructor(props) {
@@ -28,8 +35,10 @@ export default class AllIssues extends Component {
     };
 
     this.tableHeader = [
+      { header: 'ID', headerKey: 'issueId' },
       { header: 'Name', headerKey: 'name' },
       { header: 'Category', headerKey: 'category' },
+      { header: 'Issue Devices', headerKey: 'devicesNameShort' },
       { header: 'Severity', headerKey: 'severity' },
       { header: 'Tested By', headerKey: 'testedBy' },
       { header: 'Is Solved', headerKey: 'isSolvedCheckbox' },
@@ -48,8 +57,10 @@ export default class AllIssues extends Component {
         const issueAux = response.data.data.issues;
         const categories = [];
         const categoriesId = [];
-        issueAux.map((issue) => categories.push(issue.issue_category.name));
-        issueAux.map((issue) => categoriesId.push(issue.issue_category.id));
+        issueAux.map((issue) => {
+          categories.push(issue.issue_category.name);
+          categoriesId.push(issue.issue_category.id);
+        });
         this.setState({ categories }, () => {
           this.setIssueCategories();
         });
@@ -63,12 +74,63 @@ export default class AllIssues extends Component {
   };
 
   getAllIssues = () => {
-    const { app } = this.state;
+    const { app, issues } = this.state;
 
     this.setState({
       issues: app.issues,
       isIssuesReady: true,
     });
+
+    const appDevices = app.devicesInfo;
+    const issueDevices = [];
+    // eslint-disable-next-line react/destructuring-assignment
+    app.issues.map((issue, index) => {
+      issue.devices.map((device) => {
+        issueDevices.push({ device, issueId: index });
+      });
+    });
+
+    const issueDevicesList = [];
+    const appDevicesList = [];
+
+    appDevices.map((appDevice) => {
+      issueDevices.map((issueDevice) => {
+        if (appDevice.device.id == issueDevice.device.id) {
+          issueDevicesList.push({ device: appDevice.device.deviceNameShort, issueId: issueDevice.issueId });
+        }
+      });
+      appDevicesList.push({
+        id: appDevice.device.id,
+        portals: appDevice.device.portalIds,
+        code: appDevice.device.appCodeManager,
+        name: appDevice.device.deviceNameShort,
+        status: appDevice.statusAppDevice,
+        deviceId: appDevice.device.fxmId,
+      });
+    });
+
+    const devicesList = [];
+
+    appDevicesList.map((device) => {
+      const myDevice = {
+        id: device.id,
+        deviceId: device.deviceId,
+        portals: device.portals,
+        name: device.name,
+        code: device.code,
+        status: device.status,
+        issueIds: [],
+      };
+      issueDevicesList.map((issueDevice) => {
+        if (device.name === issueDevice.device) {
+          myDevice.issueIds.push(issueDevice.issueId);
+        }
+      });
+      devicesList.push(myDevice);
+    });
+
+    setShowDevicesTable();
+    setDevices(devicesList);
   };
 
   getIssuesActions(issue) {
@@ -97,14 +159,16 @@ export default class AllIssues extends Component {
     }
 
     return issuesToUse.map((issue) => {
-      const { name, severity, category, testedBy, isSolved } = issue;
+      const { issueId, name, severity, category, testedBy, isSolved, devicesNameShort } = issue;
 
       const isSolvedCheckbox = <Checkbox name="isSolved" isChecked={isSolved} disabled="disabled" />;
       const actions = this.getIssuesActions(issue);
 
       return {
+        issueId,
         name,
         category,
+        devicesNameShort,
         severity,
         testedBy,
         isSolvedCheckbox,
@@ -121,9 +185,14 @@ export default class AllIssues extends Component {
     const { issues } = this.state;
     const { categories } = this.state;
     const issuesAux = issues.map((issue, index) => {
+      const { devices } = issue;
+      const namesAux = [];
+      devices.map((device) => namesAux.push(device.deviceNameShort));
       return {
         ...issue,
         category: categories[index],
+        devicesNameShort: namesAux.join(', '),
+        issueId: index,
       };
     });
     this.setState({ issues: issuesAux });
@@ -214,6 +283,7 @@ export default class AllIssues extends Component {
       { label: 'App Alias', key: 'appAlias' },
       { label: 'App Name', key: 'appName' },
       { label: 'URL', key: 'appUrl' },
+      { label: 'ID', key: 'issueId' },
       { label: 'Issue Name', key: 'issueName' },
       { label: 'Category', key: 'category' },
       { label: 'Description', key: 'description' },
@@ -234,13 +304,14 @@ export default class AllIssues extends Component {
     const issuesData = issues.map((issue, index) => {
       let data = '';
 
-      const devicesName = [];
+      const devicesNameShort = [];
       if (issue.devices.length != 0) {
-        issue.devices.map((device) => devicesName.push(device.deviceName));
+        issue.devices.map((device) => devicesNameShort.push(device.deviceNameShort));
       }
 
       if (index == 0) {
         data = {
+          issueId: issue.issueId,
           appAlias: app.alias,
           appName: app.name,
           appUrl: app.appUrls[0].url,
@@ -256,12 +327,13 @@ export default class AllIssues extends Component {
           technicalFeedback: issue.technicalFeedback,
           additionalInformation: issue.additionalInformation,
           issueUrl: issue.url,
-          devices: devicesName,
+          devices: issue.devicesNameShort,
           reproducibilityRate: issue.reproducibilityRate,
           isSolved: issue.isSolved,
         };
       } else {
         data = {
+          issueId: issue.issueId,
           issueName: issue.name,
           category: issue.category,
           description: issue.description,
@@ -274,7 +346,7 @@ export default class AllIssues extends Component {
           technicalFeedback: issue.technicalFeedback,
           additionalInformation: issue.additionalInformation,
           issueUrl: issue.url,
-          devices: devicesName,
+          devices: issue.devicesNameShort,
           reproducibilityRate: issue.reproducibilityRate,
           isSolved: issue.isSolved,
         };
@@ -283,7 +355,7 @@ export default class AllIssues extends Component {
       return data;
     });
 
-    const DocName = `Foxxum_${app.alias}-IssuesReport_${year}${month}${day}`;
+    const DocName = `Foxxum_${app.name}-IssuesReport_${year}${month}${day}`;
 
     return (
       <div>
@@ -334,6 +406,7 @@ export default class AllIssues extends Component {
           </div>
         </div>
         {showIssueForm ? <IssueForm newIssue={this.addIssue} setShow={this.setShowState} /> : null}
+        <DevicesTable />
       </div>
     );
   };

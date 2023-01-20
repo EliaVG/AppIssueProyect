@@ -336,7 +336,7 @@ export default class IssueForm extends Component {
                 option={this.devicesOptions(optionsList)}
                 optionsList={optionsList}
                 onChangeOption={(e) => {
-                  const values = devices;
+                  const values = [];
                   e.map((item) => {
                     values.push(item.value);
                   });
@@ -350,7 +350,7 @@ export default class IssueForm extends Component {
                 option={devices}
                 optionsList={optionsList}
                 onChangeOption={(e) => {
-                  const values = devices;
+                  const values = [];
                   e.map((item) => {
                     values.push(item.value);
                   });
@@ -363,7 +363,7 @@ export default class IssueForm extends Component {
               <Checkbox name="isSolved" liftState={this.onLiftState} isChecked={isSolved} /> Is Solved
             </div>
           </div>
-          <Button name={getIssue() == '' ? 'Add New Issue' : 'Edit Issue'} type="submit" className="submitButton">
+          <Button name={getIssue() == '' ? 'Add New Issue' : 'Save Issue'} type="submit" className="submitButton">
             <input type="submit" />
           </Button>
         </div>

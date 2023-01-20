@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import './style.scss';
 import { Link } from 'react-router-dom';
@@ -10,7 +11,7 @@ import Table from '../../../../components/Table';
 import Checkbox from '../../../../components/Checkbox';
 import { setAppId, setAppInfo } from '../components/helpers/variables';
 
-const AVAILABLE_PROPERTIES = ['alias', 'redmineTaskLink', 'url', 'foxxumPic', 'app-categories', 'targetCountries'];
+const AVAILABLE_PROPERTIES = ['alias', 'redmineTask', 'url', 'appManagerId', 'foxxumPic', 'categories', 'countries'];
 
 export default class AllApps extends Component {
   constructor(props) {
@@ -45,6 +46,25 @@ export default class AllApps extends Component {
           apps: response.data.data,
           isAppsReady: true,
         });
+        const { apps } = this.state;
+        const appsAux = apps.map((app) => {
+          const { app_categories, targetCountries } = app;
+          const categoriesAux = [];
+          const countriesAux = [];
+          app_categories.map((category) => {
+            categoriesAux.push(category.name);
+          });
+          targetCountries.map((country) => {
+            countriesAux.push(country.ISO3166);
+          });
+          return {
+            ...app,
+            categories: categoriesAux.join(', '),
+            url: app.appUrls[app.appUrls.length - 1].url,
+            countries: countriesAux.join(', '),
+          };
+        });
+        this.setState({ apps: appsAux });
       })
       .catch((error) => {
         console.error(error);
@@ -71,18 +91,10 @@ export default class AllApps extends Component {
 
     return appsToUse.map((app) => {
       // eslint-disable-next-line camelcase
-      const { name, redmineTask, appUrls, appManagerId, foxxumPic, app_categories, targetCountries, isTestApp } = app;
-
-      const categoriesArray = app_categories.map((category) => category.name);
-      const categories = categoriesArray.join(', ');
-
-      const countriesArray = targetCountries.map((country) => country.ISO3166);
-      const countries = countriesArray.join(', ');
+      const { name, redmineTask, url, appManagerId, foxxumPic, categories, countries, isTestApp } = app;
 
       const isTestAppCheckbox = <Checkbox name="isTestApp" isChecked={isTestApp} disabled="disabled" />;
       const actions = this.getAppsActions(app);
-
-      const { url } = appUrls[appUrls.length - 1];
 
       const redmineTaskLink = (
         <Link onClick={() => window.open(`https://projects.foxxum.com/redmine/issues/${redmineTask}`, '_blank')}>
