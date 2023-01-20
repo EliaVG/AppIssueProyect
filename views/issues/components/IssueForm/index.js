@@ -126,7 +126,7 @@ export default class IssueForm extends Component {
     // eslint-disable-next-line react/destructuring-assignment
     this.props.newIssue(issue);
 
-    // window.location.href = `/dashboardpc/management/apps/${getAppId()}`;
+    window.location.href = `/dashboardpc/management/apps/${getAppId()}`;
     setShowIssueForm();
   };
 
@@ -178,7 +178,10 @@ export default class IssueForm extends Component {
     const devicesInput = [];
 
     devicesAux.map((device) => {
-      devicesInput.push({ value: device.id, label: `${device.appCodeManager} - ${device.portalIds}` });
+      devicesInput.push({
+        value: device.id,
+        label: `${device.portalIds} - ${device.specs.brand} - ${device.specs.chipset}`,
+      });
     });
 
     return devicesInput;
@@ -259,7 +262,7 @@ export default class IssueForm extends Component {
               }}
             />
             <Input
-              title="Prerequisites"
+              title="Prerequisites*"
               value={preRequisites.join(', ')}
               inputStyle="2"
               onInputTextChange={(value) => {
@@ -267,7 +270,7 @@ export default class IssueForm extends Component {
               }}
             />
             <TextArea
-              title="Steps"
+              title="Steps*"
               value={steps.join(', ')}
               inputStyle="3"
               onInputTextChange={(value) => {
