@@ -41,7 +41,7 @@ class AppService {
 
   // Traer todos los dispositivos
   getDevices() {
-    return axios.get(`${API_URL}/devices?populate=countries,navigatorSpecs&pagination[limit]=200`);
+    return axios.get(`${API_URL}/devices?populate=countries,specs&pagination[limit]=200`);
   }
 
   // Traer todos los idiomas
