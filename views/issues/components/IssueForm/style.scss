@@ -9,6 +9,7 @@
   margin: auto;
   background-color: rgba(0, 0, 0, 0.5);
   overflow-y: scroll;
+  z-index: 100;
 
   .content {
     position: absolute;
